@@ -4,10 +4,83 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TaxCal TH</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* CSS Styling */
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    input[type="number"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      box-sizing: border-box;
+    }
+
+    #result {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #finalPrice {
+      font-size: 24px;
+      color: green;
+    }
+
+    #vatAmount {
+      font-size: 16px;
+    }
+
+    #taxNote {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* Responsive Design for Mobile */
+    @media (max-width: 480px) {
+      .container {
+        padding: 10px;
+      }
+
+      input[type="number"],
+      select {
+        padding: 8px;
+      }
+    }
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+      padding: 10px 0;
+      background-color: #f8f8f8;
+    }
+  </style>
 </head>
 <body>
-  <h1>TaxCal TH v1.0</h1>
 
   <div class="container">
     <label for="netIncome">จำนวนเงินที่ต้องการรับสุทธิ (บาท):</label>
@@ -20,18 +93,68 @@
     <select id="taxRate">
       <option value="0">0</option>
       <option value="1">1</option>
+      <option value="2">2</option>
       <option value="3" selected>3</option>
       <option value="5">5</option>
       <option value="10">10</option>
-      <option value="20">20</option>
+      <option value="15">15</option>
     </select>
 
     <div id="result">
       <h2>ราคาค่าบริการที่ต้องเรียกเก็บ: <span id="finalPrice"></span></h2>
       <p id="vatAmount"></p> 
     </div>
+
+    <div id="taxNote"></div> 
   </div>
 
-  <script src="script.js"></script>
+  <div class="footer">
+    TaxCal TH v1.0
+  </div>
+
+  <script>
+    // JavaScript (script.js)
+    function calculatePrice() {
+      const netIncome = parseFloat(document.getElementById('netIncome').value) || 0;
+      const includeVat = document.getElementById('includeVat').checked;
+      const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+
+      let finalPrice = netIncome / (1 - (taxRate / 100));
+      let vatAmount = 0;
+
+      if (includeVat) {
+        vatAmount = finalPrice * 0.07; 
+        finalPrice += vatAmount;
+      }
+
+      document.getElementById('finalPrice').textContent = finalPrice.toLocaleString('th-TH', { style: 'currency', currency: 'THB' });
+      document.getElementById('vatAmount').textContent = includeVat ? `VAT 7%: ${vatAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}` : "";
+
+      // แสดงหมายเหตุภาษี
+      displayTaxNote(taxRate); 
+    }
+
+    function displayTaxNote(taxRate) {
+      const taxNotes = {
+        1: "หัก ณ ที่จ่าย 1%: ค่าขนส่ง, ค่าโฆษณา, ค่าบริการ, ค่าเช่าอสังหาริมทรัพย์, เงินได้ที่จ่ายให้กับบริษัทหรือห้างหุ้นส่วนนิติบุคคล",
+        2: "หัก ณ ที่จ่าย 2%: ค่าจ้างทำของ",
+        3: "หัก ณ ที่จ่าย 3%: ค่ารับเหมา, ค่าก่อสร้าง, ค่าออกแบบ, ค่าที่ปรึกษา, ค่าวิชาชีพ, ค่าสิทธิ",
+        5: "หัก ณ ที่จ่าย 5%: ดอกเบี้ย, เงินปันผล, ค่าลิขสิทธิ์, ค่าแสดงของนักแสดงสาธารณะ",
+        10: "หัก ณ ที่จ่าย 10% - 35%: เงินเดือน (อัตราภาษีเงินได้บุคคลธรรมดา)",
+        15: "หัก ณ ที่จ่าย 15%: ค่าเช่าอสังหาริมทรัพย์ให้แก่ผู้รับซึ่งมิได้เป็นผู้อยู่ในประเทศไทย"
+      };
+      const taxNoteElement = document.getElementById('taxNote');
+      taxNoteElement.textContent = taxNotes[taxRate] || "";
+    }
+
+    // คำนวณทันทีเมื่อโหลดหน้าเว็บ
+    calculatePrice();
+
+    // Event listener สำหรับ input fields ทั้งหมด
+    const inputs = document.querySelectorAll('input, select'); 
+    inputs.forEach(input => {
+      input.addEventListener('input', calculatePrice); 
+    });
+  </script>
 </body>
 </html>
