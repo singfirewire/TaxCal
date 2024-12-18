@@ -158,7 +158,7 @@
     function displayTaxExemptionNote(taxExemption) {
       const taxExemptionNoteElement = document.getElementById('taxExemptionNote');
       if (taxExemption) {
-        taxExemptionNoteElement.textContent = "ได้รับการยกเว้นภาษีหัก ณ ที่จ่ายเนื่องจากยอดจ่ายไม่ถึง 1,000 บาท (แต่ยังคงต้องเสีย VAT ตามปกติ)";
+        taxExemptionNoteElement.textContent = "** หักภาษี ณ ที่จ่าย จะยกเว้นในกรณีที่ยอดเงินได้แต่ละครั้งที่จ่าย ไม่ถึง 1,000 บาท";
       } else {
         taxExemptionNoteElement.textContent = "";
       }
