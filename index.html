@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TaxCal TH</title>
   <style>
-    /* CSS Styling */
     body {
       font-family: sans-serif;
       margin: 0;
@@ -80,6 +80,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="container">
@@ -102,10 +103,11 @@
 
     <div id="result">
       <h2>ราคาค่าบริการที่ต้องเรียกเก็บ: <span id="finalPrice"></span></h2>
-      <p id="vatAmount"></p> 
+      <p id="vatAmount"></p>
     </div>
 
-    <div id="taxNote"></div> 
+    <div id="taxNote"></div>
+    <div id="taxExemptionNote"></div>
   </div>
 
   <div class="footer">
@@ -113,25 +115,31 @@
   </div>
 
   <script>
-    // JavaScript (script.js)
     function calculatePrice() {
       const netIncome = parseFloat(document.getElementById('netIncome').value) || 0;
       const includeVat = document.getElementById('includeVat').checked;
       const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
 
-      let finalPrice = netIncome / (1 - (taxRate / 100));
+      let finalPrice = netIncome;
       let vatAmount = 0;
+      let taxExemption = false;
+
+      if (finalPrice >= 1000) {
+        finalPrice = netIncome / (1 - (taxRate / 100));
+      } else {
+        taxExemption = true;
+      }
 
       if (includeVat) {
-        vatAmount = finalPrice * 0.07; 
+        vatAmount = finalPrice * 0.07;
         finalPrice += vatAmount;
       }
 
-      document.getElementById('finalPrice').textContent = finalPrice.toLocaleString('th-TH', { style: 'currency', currency: 'THB' });
-      document.getElementById('vatAmount').textContent = includeVat ? `VAT 7%: ${vatAmount.toLocaleString('th-TH', { style: 'currency', currency: 'THB' })}` : "";
+      document.getElementById('finalPrice').textContent = finalPrice.toLocaleString('th-TH', {style: 'currency', currency: 'THB'});
+      document.getElementById('vatAmount').textContent = includeVat ? `VAT 7%: ${vatAmount.toLocaleString('th-TH', {style: 'currency', currency: 'THB'})}` : "";
 
-      // แสดงหมายเหตุภาษี
-      displayTaxNote(taxRate); 
+      displayTaxNote(taxRate);
+      displayTaxExemptionNote(taxExemption);
     }
 
     function displayTaxNote(taxRate) {
@@ -147,14 +155,22 @@
       taxNoteElement.textContent = taxNotes[taxRate] || "";
     }
 
-    // คำนวณทันทีเมื่อโหลดหน้าเว็บ
+    function displayTaxExemptionNote(taxExemption) {
+      const taxExemptionNoteElement = document.getElementById('taxExemptionNote');
+      if (taxExemption) {
+        taxExemptionNoteElement.textContent = "ได้รับการยกเว้นภาษีหัก ณ ที่จ่ายเนื่องจากยอดจ่ายไม่ถึง 1,000 บาท (แต่ยังคงต้องเสีย VAT ตามปกติ)";
+      } else {
+        taxExemptionNoteElement.textContent = "";
+      }
+    }
+
     calculatePrice();
 
-    // Event listener สำหรับ input fields ทั้งหมด
-    const inputs = document.querySelectorAll('input, select'); 
+    const inputs = document.querySelectorAll('input, select');
     inputs.forEach(input => {
-      input.addEventListener('input', calculatePrice); 
+      input.addEventListener('input', calculatePrice);
     });
   </script>
 </body>
+
 </html>
